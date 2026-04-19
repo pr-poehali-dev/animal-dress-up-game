@@ -53,24 +53,18 @@ const ALL_ANIMALS: Animal[] = [
   { id: "unicorn",name: "Единорог", img: CDN + "74c8731b-ebf2-4ee8-baab-4c4aa8dee4a7.jpg", price: 50 },
 ];
 
-// Котик В одежде — показывается на главной поверх персонажа
-const OUTFIT_ON_CAT_IMGS: Record<string, string> = {
-  sweater: CDN + "19d7e0e8-192f-4b9c-bbc0-6b8c1b57e55b.jpg",
-  tshirt:  CDN + "9dd7aa9d-0dc8-4c13-94d3-173300c7d8ea.jpg",
-  dress:   CDN + "bdcf6b8a-ac4d-497e-b999-5236a908e594.jpg",
-  shorts:  CDN + "9347a0ac-43f2-42cd-bf90-d79e220930d5.jpg",
-  skirt:   CDN + "777992b7-32b9-4b3c-9264-7397227467c7.jpg",
-  cap:     CDN + "a2f70b4e-00fc-43b1-9db1-6e95bf8f8598.jpg",
-};
-
-// Одежда отдельно — для мастерской и превью
-const OUTFIT_TYPE_IMGS: Record<string, string> = {
-  sweater: CDN + "9901dd1a-0f1e-4e57-8bc1-c16286325102.jpg",
-  tshirt:  CDN + "37f1a750-88b4-412a-9288-e86b549812f2.jpg",
-  dress:   CDN + "c5c96390-d696-4080-8ac6-4f519b599604.jpg",
-  shorts:  CDN + "340a0df1-e10f-4cba-a854-b897371fa155.jpg",
-  skirt:   CDN + "d05b5bc4-2015-4b13-86a7-895a358fa412.jpg",
-  cap:     CDN + "516e35cf-cb86-426b-b166-59478927ad30.jpg",
+// Паттерн-дефиниции для SVG
+const PATTERN_DEFS: Record<string, (c1: string, c2: string) => string> = {
+  plain:   (c1) => `<rect width="100" height="100" fill="${c1}"/>`,
+  stripes: (c1, c2) => `<rect width="100" height="100" fill="${c1}"/><rect x="0" y="0" width="20" height="100" fill="${c2}" opacity="0.6"/><rect x="40" y="0" width="20" height="100" fill="${c2}" opacity="0.6"/><rect x="80" y="0" width="20" height="100" fill="${c2}" opacity="0.6"/>`,
+  dots:    (c1, c2) => `<rect width="100" height="100" fill="${c1}"/><circle cx="15" cy="15" r="7" fill="${c2}" opacity="0.7"/><circle cx="45" cy="15" r="7" fill="${c2}" opacity="0.7"/><circle cx="75" cy="15" r="7" fill="${c2}" opacity="0.7"/><circle cx="30" cy="40" r="7" fill="${c2}" opacity="0.7"/><circle cx="60" cy="40" r="7" fill="${c2}" opacity="0.7"/><circle cx="90" cy="40" r="7" fill="${c2}" opacity="0.7"/><circle cx="15" cy="65" r="7" fill="${c2}" opacity="0.7"/><circle cx="45" cy="65" r="7" fill="${c2}" opacity="0.7"/><circle cx="75" cy="65" r="7" fill="${c2}" opacity="0.7"/><circle cx="30" cy="90" r="7" fill="${c2}" opacity="0.7"/><circle cx="60" cy="90" r="7" fill="${c2}" opacity="0.7"/>`,
+  hearts:  (c1, c2) => `<rect width="100" height="100" fill="${c1}"/><text x="10" y="28" font-size="18" fill="${c2}" opacity="0.8">♥</text><text x="40" y="28" font-size="18" fill="${c2}" opacity="0.8">♥</text><text x="70" y="28" font-size="18" fill="${c2}" opacity="0.8">♥</text><text x="25" y="58" font-size="18" fill="${c2}" opacity="0.8">♥</text><text x="55" y="58" font-size="18" fill="${c2}" opacity="0.8">♥</text><text x="10" y="88" font-size="18" fill="${c2}" opacity="0.8">♥</text><text x="70" y="88" font-size="18" fill="${c2}" opacity="0.8">♥</text>`,
+  stars:   (c1, c2) => `<rect width="100" height="100" fill="${c1}"/><text x="8" y="26" font-size="16" fill="${c2}" opacity="0.8">★</text><text x="38" y="26" font-size="16" fill="${c2}" opacity="0.8">★</text><text x="68" y="26" font-size="16" fill="${c2}" opacity="0.8">★</text><text x="23" y="56" font-size="16" fill="${c2}" opacity="0.8">★</text><text x="53" y="56" font-size="16" fill="${c2}" opacity="0.8">★</text><text x="8" y="86" font-size="16" fill="${c2}" opacity="0.8">★</text><text x="68" y="86" font-size="16" fill="${c2}" opacity="0.8">★</text>`,
+  flowers: (c1, c2) => `<rect width="100" height="100" fill="${c1}"/><text x="5" y="28" font-size="20" fill="${c2}" opacity="0.75">✿</text><text x="38" y="28" font-size="20" fill="${c2}" opacity="0.75">✿</text><text x="68" y="28" font-size="20" fill="${c2}" opacity="0.75">✿</text><text x="22" y="60" font-size="20" fill="${c2}" opacity="0.75">✿</text><text x="55" y="60" font-size="20" fill="${c2}" opacity="0.75">✿</text><text x="8" y="90" font-size="20" fill="${c2}" opacity="0.75">✿</text><text x="68" y="90" font-size="20" fill="${c2}" opacity="0.75">✿</text>`,
+  checks:  (c1, c2) => `<rect width="100" height="100" fill="${c1}"/><rect x="0" y="0" width="25" height="25" fill="${c2}" opacity="0.5"/><rect x="50" y="0" width="25" height="25" fill="${c2}" opacity="0.5"/><rect x="25" y="25" width="25" height="25" fill="${c2}" opacity="0.5"/><rect x="75" y="25" width="25" height="25" fill="${c2}" opacity="0.5"/><rect x="0" y="50" width="25" height="25" fill="${c2}" opacity="0.5"/><rect x="50" y="50" width="25" height="25" fill="${c2}" opacity="0.5"/><rect x="25" y="75" width="25" height="25" fill="${c2}" opacity="0.5"/><rect x="75" y="75" width="25" height="25" fill="${c2}" opacity="0.5"/>`,
+  waves:   (c1, c2) => `<rect width="100" height="100" fill="${c1}"/><path d="M0 20 Q12 10 25 20 Q38 30 50 20 Q62 10 75 20 Q88 30 100 20" stroke="${c2}" stroke-width="5" fill="none" opacity="0.7"/><path d="M0 45 Q12 35 25 45 Q38 55 50 45 Q62 35 75 45 Q88 55 100 45" stroke="${c2}" stroke-width="5" fill="none" opacity="0.7"/><path d="M0 70 Q12 60 25 70 Q38 80 50 70 Q62 60 75 70 Q88 80 100 70" stroke="${c2}" stroke-width="5" fill="none" opacity="0.7"/>`,
+  zigzag:  (c1, c2) => `<rect width="100" height="100" fill="${c1}"/><path d="M0 15 L12 5 L25 15 L37 5 L50 15 L62 5 L75 15 L87 5 L100 15" stroke="${c2}" stroke-width="5" fill="none" opacity="0.7"/><path d="M0 40 L12 30 L25 40 L37 30 L50 40 L62 30 L75 40 L87 30 L100 40" stroke="${c2}" stroke-width="5" fill="none" opacity="0.7"/><path d="M0 65 L12 55 L25 65 L37 55 L50 65 L62 55 L75 65 L87 55 L100 65" stroke="${c2}" stroke-width="5" fill="none" opacity="0.7"/><path d="M0 90 L12 80 L25 90 L37 80 L50 90 L62 80 L75 90 L87 80 L100 90" stroke="${c2}" stroke-width="5" fill="none" opacity="0.7"/>`,
+  rainbow: (c1, c2) => `<rect width="100" height="100" fill="${c1}"/><rect width="100" height="15" fill="#FF6B9D" opacity="0.6"/><rect y="15" width="100" height="14" fill="#FF9F43" opacity="0.6"/><rect y="29" width="100" height="14" fill="#FFD93D" opacity="0.6"/><rect y="43" width="100" height="14" fill="#6BCF85" opacity="0.6"/><rect y="57" width="100" height="14" fill="#54A0FF" opacity="0.6"/><rect y="71" width="100" height="15" fill="#B96BFF" opacity="0.6"/>`,
 };
 
 const ALL_PATTERNS: Pattern[] = [
@@ -140,14 +134,108 @@ function savePattern(name: string, id: string) {
   if (!cur.includes(id)) localStorage.setItem(`koto_patterns_${name}`, JSON.stringify([...cur, id]));
 }
 
-// Миниатюра одежды для списков (просто картинка предмета)
-function OutfitDisplay({ outfit, size = 120 }: { outfit: Outfit; size?: number }) {
+// ─── SVG ОДЕЖДА С РЕАЛЬНЫМИ ЦВЕТАМИ ─────────────────────────────────────────
+
+function getPatternFill(pattern: string, colors: string[]) {
+  const c1 = colors[0] || "#FF6B9D";
+  const c2 = colors[1] || colors[0] || "#FFD93D";
+  const fn = PATTERN_DEFS[pattern] || PATTERN_DEFS.plain;
+  return fn(c1, c2);
+}
+
+// SVG одежды: формы поверх персонажа
+function OutfitSVG({ outfit, size = 120 }: { outfit: Outfit; size?: number }) {
+  const id = `pat-${outfit.id}-${outfit.type}`;
+  const fill = getPatternFill(outfit.pattern, outfit.colors);
+
+  // Каждый тип одежды — своя SVG-форма
+  const shapes: Record<string, string> = {
+    sweater: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+      <defs><pattern id="${id}" patternUnits="userSpaceOnUse" width="100" height="100">${fill}</pattern></defs>
+      <path d="M30 10 L10 30 L25 35 L25 85 L95 85 L95 35 L110 30 L90 10 L75 20 Q60 28 45 20 Z" fill="url(#${id})" stroke="rgba(0,0,0,0.15)" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M30 10 Q22 5 10 30 L25 35 L30 20" fill="url(#${id})" stroke="rgba(0,0,0,0.15)" stroke-width="2"/>
+      <path d="M90 10 Q98 5 110 30 L95 35 L90 20" fill="url(#${id})" stroke="rgba(0,0,0,0.15)" stroke-width="2"/>
+      <ellipse cx="60" cy="12" rx="15" ry="8" fill="rgba(0,0,0,0.12)"/>
+    </svg>`,
+
+    tshirt: `<svg viewBox="0 0 120 85" xmlns="http://www.w3.org/2000/svg">
+      <defs><pattern id="${id}" patternUnits="userSpaceOnUse" width="100" height="100">${fill}</pattern></defs>
+      <path d="M35 8 L12 28 L26 34 L26 82 L94 82 L94 34 L108 28 L85 8 L72 16 Q60 22 48 16 Z" fill="url(#${id})" stroke="rgba(0,0,0,0.15)" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M35 8 Q27 4 12 28 L26 34 L32 18" fill="url(#${id})" stroke="rgba(0,0,0,0.15)" stroke-width="2"/>
+      <path d="M85 8 Q93 4 108 28 L94 34 L88 18" fill="url(#${id})" stroke="rgba(0,0,0,0.15)" stroke-width="2"/>
+      <ellipse cx="60" cy="10" rx="13" ry="7" fill="rgba(0,0,0,0.12)"/>
+    </svg>`,
+
+    dress: `<svg viewBox="0 0 120 110" xmlns="http://www.w3.org/2000/svg">
+      <defs><pattern id="${id}" patternUnits="userSpaceOnUse" width="100" height="100">${fill}</pattern></defs>
+      <path d="M40 8 L22 28 L32 32 L20 108 L100 108 L88 32 L98 28 L80 8 L70 15 Q60 20 50 15 Z" fill="url(#${id})" stroke="rgba(0,0,0,0.15)" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M40 8 Q33 4 22 28 L32 32 L37 16" fill="url(#${id})" stroke="rgba(0,0,0,0.15)" stroke-width="2"/>
+      <path d="M80 8 Q87 4 98 28 L88 32 L83 16" fill="url(#${id})" stroke="rgba(0,0,0,0.15)" stroke-width="2"/>
+      <ellipse cx="60" cy="10" rx="12" ry="7" fill="rgba(0,0,0,0.12)"/>
+      <path d="M18 85 Q60 75 102 85 L100 108 L20 108 Z" fill="rgba(255,255,255,0.15)" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    </svg>`,
+
+    shorts: `<svg viewBox="0 0 110 80" xmlns="http://www.w3.org/2000/svg">
+      <defs><pattern id="${id}" patternUnits="userSpaceOnUse" width="100" height="100">${fill}</pattern></defs>
+      <path d="M10 5 L100 5 L95 75 L65 75 L55 40 L45 75 L15 75 Z" fill="url(#${id})" stroke="rgba(0,0,0,0.15)" stroke-width="2" stroke-linejoin="round"/>
+      <rect x="10" y="5" width="90" height="12" rx="4" fill="rgba(0,0,0,0.12)"/>
+    </svg>`,
+
+    skirt: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+      <defs><pattern id="${id}" patternUnits="userSpaceOnUse" width="100" height="100">${fill}</pattern></defs>
+      <path d="M35 8 L85 8 L105 88 L15 88 Z" fill="url(#${id})" stroke="rgba(0,0,0,0.15)" stroke-width="2" stroke-linejoin="round"/>
+      <rect x="32" y="4" width="56" height="14" rx="6" fill="rgba(0,0,0,0.15)"/>
+      <path d="M15 65 Q60 55 105 65 L105 88 L15 88 Z" fill="rgba(255,255,255,0.18)"/>
+    </svg>`,
+
+    cap: `<svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
+      <defs><pattern id="${id}" patternUnits="userSpaceOnUse" width="100" height="100">${fill}</pattern></defs>
+      <ellipse cx="60" cy="48" rx="52" ry="28" fill="url(#${id})" stroke="rgba(0,0,0,0.15)" stroke-width="2"/>
+      <path d="M8 48 Q60 18 112 48" fill="url(#${id})" stroke="rgba(0,0,0,0.15)" stroke-width="2"/>
+      <rect x="5" y="44" width="110" height="12" rx="6" fill="rgba(0,0,0,0.15)"/>
+      <ellipse cx="60" cy="22" rx="8" ry="5" fill="rgba(0,0,0,0.18)"/>
+    </svg>`,
+  };
+
+  const svgStr = shapes[outfit.type] || shapes.tshirt;
   return (
-    <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
-      <img src={outfit.typeImg} alt={outfit.name}
-        style={{ width: size, height: size, objectFit: "contain", borderRadius: 12 }} />
+    <div style={{ width: size, height: size }} className="relative flex items-center justify-center"
+      dangerouslySetInnerHTML={{ __html: `<div style="width:${size}px;height:${size}px">${svgStr}</div>` }} />
+  );
+}
+
+// Персонаж с надетой одеждой поверх
+function AnimalWithOutfit({ animal, outfit, size = 180, animated = false }: {
+  animal: Animal; outfit: Outfit | null; size?: number; animated?: boolean;
+}) {
+  // Позиции одежды на персонаже зависят от типа
+  const clothingPos: Record<string, { top: string; left: string; width: string }> = {
+    sweater: { top: "30%",  left: "12%", width: "76%" },
+    tshirt:  { top: "30%",  left: "14%", width: "72%" },
+    dress:   { top: "28%",  left: "10%", width: "80%" },
+    shorts:  { top: "52%",  left: "16%", width: "68%" },
+    skirt:   { top: "50%",  left: "10%", width: "80%" },
+    cap:     { top: "-4%",  left: "14%", width: "72%" },
+  };
+  const pos = outfit ? (clothingPos[outfit.type] || clothingPos.tshirt) : null;
+
+  return (
+    <div className={`relative select-none ${animated ? "animate-float" : ""}`}
+      style={{ width: size, height: size }}>
+      <img src={animal.img} alt={animal.name}
+        className="w-full h-full object-contain drop-shadow-md" />
+      {outfit && pos && (
+        <div className="absolute" style={{ top: pos.top, left: pos.left, width: pos.width }}>
+          <OutfitSVG outfit={outfit} size={Math.round(size * parseFloat(pos.width) / 100)} />
+        </div>
+      )}
     </div>
   );
+}
+
+// Миниатюра одежды для списков
+function OutfitDisplay({ outfit, size = 60 }: { outfit: Outfit; size?: number }) {
+  return <OutfitSVG outfit={outfit} size={size} />;
 }
 
 // ─── LOGIN SCREEN ─────────────────────────────────────────────────────────────
@@ -287,20 +375,15 @@ function HomeTab({ player, updatePlayer }: { player: PlayerData; updatePlayer: (
           </div>
         )}
 
-        {/* Персонаж — если надет наряд, показываем котика в одежде, иначе просто котика */}
-        <div className={`relative z-10 cursor-pointer select-none ${dressed ? "animate-wiggle" : "animate-float"}`}
-          style={{ width: 180, height: 180 }}
+        {/* Персонаж с одеждой поверх — работает для любого животного */}
+        <div className={`relative z-10 cursor-pointer ${dressed ? "animate-wiggle" : ""}`}
           onClick={handleDress}>
-          {currentOutfit && OUTFIT_ON_CAT_IMGS[currentOutfit.type] ? (
-            <img
-              src={OUTFIT_ON_CAT_IMGS[currentOutfit.type]}
-              alt={`${currentAnimal.name} в ${currentOutfit.name}`}
-              className="w-full h-full object-contain drop-shadow-md"
-            />
-          ) : (
-            <img src={currentAnimal.img} alt={currentAnimal.name}
-              className="w-full h-full object-contain drop-shadow-md" />
-          )}
+          <AnimalWithOutfit
+            animal={currentAnimal}
+            outfit={currentOutfit || null}
+            size={185}
+            animated={!dressed}
+          />
         </div>
 
         {/* Outfit label */}
@@ -400,12 +483,11 @@ function WorkshopTab({ player, updatePlayer }: { player: PlayerData; updatePlaye
 
   function handleCraft() {
     if (!material || !pattern || !outfitType || colors.length === 0) return;
-    const typeObj = OUTFIT_TYPES.find(t => t.id === outfitType);
     const patternObj = ALL_PATTERNS.find(p => p.id === pattern);
     const outfit: Outfit = {
       id: Date.now().toString(),
       material, pattern, type: outfitType, colors,
-      typeImg: OUTFIT_TYPE_IMGS[outfitType] || "",
+      typeImg: "",
       name: makeOutfitName(outfitType, patternObj?.name || pattern, material),
       worn: false,
     };
@@ -420,7 +502,7 @@ function WorkshopTab({ player, updatePlayer }: { player: PlayerData; updatePlaye
   // Preview outfit if all chosen
   const previewOutfit: Outfit | null = outfitType ? {
     id: "preview", material, pattern, type: outfitType, colors,
-    typeImg: OUTFIT_TYPE_IMGS[outfitType] || "", name: "Предпросмотр", worn: false
+    typeImg: "", name: "Предпросмотр", worn: false
   } : null;
 
   return (
@@ -487,14 +569,16 @@ function WorkshopTab({ player, updatePlayer }: { player: PlayerData; updatePlaye
         <div className="animate-slide-up">
           <h3 className="font-black text-gray-700 text-lg mb-3">Что шьём?</h3>
           <div className="grid grid-cols-2 gap-3">
-            {OUTFIT_TYPES.map(t => (
-              <button key={t.id} onClick={() => { setOutfitType(t.id); setStep(3); }}
-                className={`item-card p-3 flex flex-col items-center gap-2 ${outfitType === t.id ? "selected" : ""}`}>
-                <img src={OUTFIT_TYPE_IMGS[t.id]} alt={t.name}
-                  className="w-20 h-20 object-contain" />
-                <span className="font-black text-gray-700">{t.name}</span>
-              </button>
-            ))}
+            {OUTFIT_TYPES.map(t => {
+              const demoOutfit: Outfit = { id:"demo", material:"", pattern:"plain", type:t.id, colors:["#FF6B9D","#FFD93D"], typeImg:"", name:t.name, worn:false };
+              return (
+                <button key={t.id} onClick={() => { setOutfitType(t.id); setStep(3); }}
+                  className={`item-card p-3 flex flex-col items-center gap-2 ${outfitType === t.id ? "selected" : ""}`}>
+                  <OutfitSVG outfit={demoOutfit} size={80} />
+                  <span className="font-black text-gray-700">{t.name}</span>
+                </button>
+              );
+            })}
           </div>
           <button onClick={() => setStep(1)} className="mt-3 text-gray-400 font-bold text-sm">← Назад</button>
         </div>
@@ -563,15 +647,17 @@ function WorkshopTab({ player, updatePlayer }: { player: PlayerData; updatePlaye
                     <span className="text-xs font-black text-purple-700">{ALL_PATTERNS.find(p => p.id === pattern)?.name}</span>
                   </div>
                   <div className="bg-pink-50 rounded-2xl p-3 text-center border-2 border-pink-100 flex flex-col items-center gap-1">
-                    <img src={OUTFIT_TYPE_IMGS[outfitType]} alt="" className="w-10 h-10 object-contain" />
+                    <span className="text-3xl">{OUTFIT_TYPES.find(t => t.id === outfitType)?.emoji}</span>
                     <span className="text-xs font-black text-pink-700">{OUTFIT_TYPES.find(t => t.id === outfitType)?.name}</span>
                   </div>
                 </div>
 
-                {/* Result preview */}
+                {/* Result preview — SVG с реальными цветами */}
                 {previewOutfit && (
                   <div className="flex flex-col items-center gap-2">
-                    <OutfitDisplay outfit={previewOutfit} size={100} />
+                    <div className="rounded-2xl overflow-hidden shadow-lg border-2 border-gray-100">
+                      <OutfitSVG outfit={previewOutfit} size={120} />
+                    </div>
                     <div className="flex gap-1.5">
                       {colors.map((c, i) => (
                         <div key={i} className="w-5 h-5 rounded-full shadow"
