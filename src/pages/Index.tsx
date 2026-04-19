@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 // ─── TYPES ────────────────────────────────────────────────────────────────────
 
@@ -45,14 +45,25 @@ const ALL_ANIMALS: Animal[] = [
   { id: "dog",    name: "Собачка",  img: CDN + "99977e5c-589f-4894-8eb0-c0ed03081db4.jpg", price: 50 },
   { id: "bunny",  name: "Зайчик",   img: CDN + "6a440dc2-a7d2-4435-8d13-ed9683a4ce01.jpg", price: 50 },
   { id: "bear",   name: "Мишка",    img: CDN + "78441214-774a-4f35-8707-7a40d487ff4e.jpg", price: 50 },
-  { id: "fox",    name: "Лисичка",  img: CDN + "99977e5c-589f-4894-8eb0-c0ed03081db4.jpg", price: 50 },
-  { id: "panda",  name: "Панда",    img: CDN + "35565648-7f68-456f-a795-3d3bb29eec5a.jpg", price: 50 },
-  { id: "frog",   name: "Лягушка",  img: CDN + "6a440dc2-a7d2-4435-8d13-ed9683a4ce01.jpg", price: 50 },
-  { id: "chick",  name: "Цыплёнок", img: CDN + "78441214-774a-4f35-8707-7a40d487ff4e.jpg", price: 50 },
-  { id: "hamster",name: "Хомяк",    img: CDN + "35565648-7f68-456f-a795-3d3bb29eec5a.jpg", price: 50 },
-  { id: "unicorn",name: "Единорог", img: CDN + "6a440dc2-a7d2-4435-8d13-ed9683a4ce01.jpg", price: 50 },
+  { id: "fox",    name: "Лисичка",  img: CDN + "5895d92f-fefc-4b91-93fd-c4bb808f4f29.jpg", price: 50 },
+  { id: "panda",  name: "Панда",    img: CDN + "34f6dfdf-f69a-4024-ab7a-85902907fcd1.jpg", price: 50 },
+  { id: "frog",   name: "Лягушка",  img: CDN + "ca11c128-f6b1-4fa1-abb1-8e4b643e7b76.jpg", price: 50 },
+  { id: "chick",  name: "Цыплёнок", img: CDN + "bab1bd4b-da39-47c2-8bcc-aeece321c88a.jpg", price: 50 },
+  { id: "hamster",name: "Хомяк",    img: CDN + "3c376750-846b-4683-b60a-a15a133e81f6.jpg", price: 50 },
+  { id: "unicorn",name: "Единорог", img: CDN + "74c8731b-ebf2-4ee8-baab-4c4aa8dee4a7.jpg", price: 50 },
 ];
 
+// Котик В одежде — показывается на главной поверх персонажа
+const OUTFIT_ON_CAT_IMGS: Record<string, string> = {
+  sweater: CDN + "19d7e0e8-192f-4b9c-bbc0-6b8c1b57e55b.jpg",
+  tshirt:  CDN + "9dd7aa9d-0dc8-4c13-94d3-173300c7d8ea.jpg",
+  dress:   CDN + "bdcf6b8a-ac4d-497e-b999-5236a908e594.jpg",
+  shorts:  CDN + "9347a0ac-43f2-42cd-bf90-d79e220930d5.jpg",
+  skirt:   CDN + "777992b7-32b9-4b3c-9264-7397227467c7.jpg",
+  cap:     CDN + "a2f70b4e-00fc-43b1-9db1-6e95bf8f8598.jpg",
+};
+
+// Одежда отдельно — для мастерской и превью
 const OUTFIT_TYPE_IMGS: Record<string, string> = {
   sweater: CDN + "9901dd1a-0f1e-4e57-8bc1-c16286325102.jpg",
   tshirt:  CDN + "37f1a750-88b4-412a-9288-e86b549812f2.jpg",
@@ -129,23 +140,12 @@ function savePattern(name: string, id: string) {
   if (!cur.includes(id)) localStorage.setItem(`koto_patterns_${name}`, JSON.stringify([...cur, id]));
 }
 
-// ─── COLOR OVERLAY ────────────────────────────────────────────────────────────
-// Tints the clothing image with chosen colors as a CSS filter trick via gradient overlay
-
+// Миниатюра одежды для списков (просто картинка предмета)
 function OutfitDisplay({ outfit, size = 120 }: { outfit: Outfit; size?: number }) {
-  const colors = outfit.colors;
-  const grad = colors.length === 1
-    ? colors[0]
-    : `linear-gradient(135deg, ${colors.map((c, i) => `${c} ${Math.round(i * 100 / (colors.length - 1))}%`).join(", ")})`;
-
   return (
     <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
       <img src={outfit.typeImg} alt={outfit.name}
         style={{ width: size, height: size, objectFit: "contain", borderRadius: 12 }} />
-      {colors.length > 0 && (
-        <div className="absolute inset-0 rounded-xl"
-          style={{ background: grad, mixBlendMode: "multiply", opacity: 0.55, borderRadius: 12 }} />
-      )}
     </div>
   );
 }
@@ -287,17 +287,19 @@ function HomeTab({ player, updatePlayer }: { player: PlayerData; updatePlayer: (
           </div>
         )}
 
-        {/* Animal */}
-        <div className={`relative z-10 cursor-pointer select-none transition-transform duration-200 ${dressed ? "animate-wiggle" : "animate-float"}`}
-          style={{ width: 160, height: 160 }}
+        {/* Персонаж — если надет наряд, показываем котика в одежде, иначе просто котика */}
+        <div className={`relative z-10 cursor-pointer select-none ${dressed ? "animate-wiggle" : "animate-float"}`}
+          style={{ width: 180, height: 180 }}
           onClick={handleDress}>
-          <img src={currentAnimal.img} alt={currentAnimal.name}
-            className="w-full h-full object-contain drop-shadow-md" />
-          {/* Outfit overlay on animal */}
-          {currentOutfit && (
-            <div className="absolute -bottom-2 -right-2 w-16 h-16 rounded-2xl shadow-lg border-2 border-white overflow-hidden bg-white">
-              <OutfitDisplay outfit={currentOutfit} size={60} />
-            </div>
+          {currentOutfit && OUTFIT_ON_CAT_IMGS[currentOutfit.type] ? (
+            <img
+              src={OUTFIT_ON_CAT_IMGS[currentOutfit.type]}
+              alt={`${currentAnimal.name} в ${currentOutfit.name}`}
+              className="w-full h-full object-contain drop-shadow-md"
+            />
+          ) : (
+            <img src={currentAnimal.img} alt={currentAnimal.name}
+              className="w-full h-full object-contain drop-shadow-md" />
           )}
         </div>
 
@@ -305,12 +307,9 @@ function HomeTab({ player, updatePlayer }: { player: PlayerData; updatePlayer: (
         {currentOutfit ? (
           <div className="flex items-center gap-2 px-4 py-2 rounded-2xl border-2 z-10"
             style={{ background: "#FFF0F5", borderColor: "var(--game-pink)" }}>
-            <div className="w-7 h-7 rounded-lg overflow-hidden flex-shrink-0">
-              <OutfitDisplay outfit={currentOutfit} size={28} />
-            </div>
             <span className="font-bold text-pink-700 text-sm">{currentOutfit.name}</span>
             {alreadyWorn && (
-              <span className="text-xs bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full font-bold">✓ одет</span>
+              <span className="text-xs bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full font-bold">✓ уже надет</span>
             )}
           </div>
         ) : (
